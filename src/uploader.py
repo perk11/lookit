@@ -1,6 +1,5 @@
 import os
 import sys
-import gtk
 import ftplib
 import pynotify
 import shutil
@@ -294,9 +293,7 @@ def upload_file(image, existing_file=False):
             except IOError:
                 print 'Error moving file'
 
-    clipboard = gtk.clipboard_get()
-    clipboard.set_text(url)
-    clipboard.store()
+    copy_to_clipboard(url, False, True)
 
     if proto == 'None':
         if config.getboolean('General', 'trash'):
@@ -308,3 +305,12 @@ def upload_file(image, existing_file=False):
         liblookit.show_notification('Lookit', 'Upload complete: ' + url)
         return url
 
+def copy_to_clipboard(str, primary=True, clipboard=True):
+    from subprocess import Popen, PIPE
+
+    if primary:
+        process = Popen(['xsel', '-pi'], stdin=PIPE)
+        process.communicate(input=str)
+    if clipboard:
+        process = Popen(['xsel', '-bi'], stdin=PIPE)
+        process.communicate(input=str)
